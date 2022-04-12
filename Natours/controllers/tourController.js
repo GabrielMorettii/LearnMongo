@@ -1,22 +1,55 @@
 const Tour = require('../models/tourModel');
 
+exports.alias = async (req, res, next) => {
+  req.query = {
+    sort: '-ratingsAverage price',
+    limit: 5,
+    fields: 'name,price,ratingsAverage,summary,difficulty'
+  };
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   const queryObj = { ...req.query };
 
-  const params = ['duration', 'difficulty'];
+  const excludedFields = ['page', 'sort', 'limit', 'fields'];
+  excludedFields.forEach(el => delete queryObj[el]);
 
-  const filterParams = queryObj.map(el => params.includes(el));
-
-  console.log(filterParams);
+  const obj = JSON.parse(
+    JSON.stringify(queryObj)
+      .replace(/:{"/g, ':{"$')
+      .split(',')
+  );
 
   try {
-    const tours = await Tour.find();
+    let query = Tour.find(obj);
 
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(duration)
-    //   .where('difficulty')
-    //   .equals(difficulty);
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    if (req.query.fields) {
+      const projectIt = req.query.fields.split(',').join(' ');
+      query = query.select(projectIt);
+    } else {
+      query = query.select('-__v');
+    }
+
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const numToSkip = (page - 1) * limit;
+
+    query = query.skip(numToSkip).limit(limit);
+
+    if (req.query.page) {
+      const numDocs = await Tour.countDocuments();
+      if (numToSkip >= numDocs) throw new Error('This page does not exists!');
+    }
+
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
@@ -28,7 +61,7 @@ exports.getAllTours = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'failure',
-      message: 'An error has ocurred!'
+      message: err.message
     });
   }
 };

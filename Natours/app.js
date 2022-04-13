@@ -8,7 +8,6 @@ const globalErrorHandler = require('./controllers/errorHandler');
 
 const app = express();
 
-// 1) MIDDLEWARES
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }

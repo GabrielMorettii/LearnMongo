@@ -1,9 +1,10 @@
+require('express-async-errors');
 const express = require('express');
 const morgan = require('morgan');
-
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorHandler');
 
 const app = express();
 
@@ -23,18 +24,6 @@ app.use((req, res, next) => {
   next(new AppError('The page was not found!', 404));
 });
 
-app.use((err, req, res, next) => {
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
-      status: 'fail',
-      message: err.message
-    });
-  }
-
-  return res.status(500).json({
-    status: 'error',
-    message: `Internal Server Error: ${err.message}`
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;

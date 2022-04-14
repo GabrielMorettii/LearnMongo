@@ -25,6 +25,10 @@ const handleValidationErrorDB = err => {
   return new AppError(message);
 };
 
+const handleUncaughtException = err => {
+  return new AppError(err.message, 500);
+};
+
 const sendErrorProd = (err, res) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -57,6 +61,7 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') error = handleCastErrorDB(error);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (err instanceof Error) error = handleUncaughtException(err);
 
     sendErrorProd(error, res);
   }

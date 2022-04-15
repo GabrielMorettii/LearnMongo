@@ -18,8 +18,12 @@ router
 
 router
   .route('/:id')
-  .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .get(authController.ensureAuthenticated, tourController.getTour)
+  .patch(
+    authController.ensureAuthenticated,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  )
   .delete(
     authController.ensureAuthenticated,
     authController.restrictTo('admin', 'lead-guide'),

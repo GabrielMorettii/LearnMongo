@@ -2,17 +2,10 @@ const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 
-exports.getAllUsers = async (req, res) => {
-  const users = await User.find();
-
-  return res.json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users
-    }
-  });
-};
+exports.getUser = factory.getOne(User);
+exports.getAllUsers = factory.getAll(User);
+exports.updateUser = factory.updateOne(User);
+exports.deleteUser = factory.deleteOne(User);
 
 exports.updateMe = async (req, res) => {
   const { password, passwordConfirm, role, ...data } = req.body;
@@ -41,24 +34,3 @@ exports.deleteMe = async (req, res) => {
 
   return res.status(204).send();
 };
-
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-
-exports.deleteUser = factory.deleteOne(User);

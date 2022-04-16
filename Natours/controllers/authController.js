@@ -166,7 +166,7 @@ exports.resetPassword = async (req, res) => {
   });
 
   if (!user) {
-    throw new AppError('Token is valid or has expired!');
+    throw new AppError('Token is not valid or has expired!');
   }
 
   user.password = req.body.password;
@@ -174,6 +174,34 @@ exports.resetPassword = async (req, res) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
 
+  await user.save();
+
+  const token = signToken(user._id);
+
+  return res.json({
+    status: 'success',
+    token
+  });
+};
+
+exports.updatePassword = async (req, res) => {
+  const user = await User.findById(req.user._id).select('+password');
+
+  if (!user) {
+    throw new AppError('The user was not found!', 404);
+  }
+
+  const correct = await user.correctPassword(
+    req.body.currentPassword,
+    user.password
+  );
+
+  if (!correct) {
+    throw new AppError('Incorrect password', 401);
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
 
   const token = signToken(user._id);

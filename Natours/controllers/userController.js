@@ -35,6 +35,12 @@ exports.updateMe = async (req, res) => {
   });
 };
 
+exports.deleteMe = async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  return res.status(204).send();
+};
+
 exports.getUser = (req, res) => {
   res.status(500).json({
     status: 'error',

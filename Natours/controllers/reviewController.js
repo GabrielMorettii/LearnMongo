@@ -1,7 +1,11 @@
 const Review = require('../models/reviewModel');
 
 exports.getAllReviews = async (req, res) => {
-  const reviews = await Review.find();
+  let filter = {};
+
+  if (req.params.tourId) filter = { tour: req.params.tourId };
+
+  const reviews = await Review.find(filter);
 
   return res.json({
     status: 'success',
@@ -13,7 +17,11 @@ exports.getAllReviews = async (req, res) => {
 };
 
 exports.createReview = async (req, res) => {
-  const review = await Review.create({ ...req.body, user: req.user._id });
+  const review = await Review.create({
+    ...req.body,
+    tour: req.body.tour || req.params.tourId,
+    user: req.body.user || req.user._id
+  });
 
   return res.status(201).json({
     status: 'success',

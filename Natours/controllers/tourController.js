@@ -1,6 +1,7 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 exports.alias = async (req, res, next) => {
   req.query = {
@@ -75,17 +76,7 @@ exports.updateTour = async (req, res) => {
   });
 };
 
-exports.deleteTour = async (req, res) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-    throw new AppError('No tour found with that ID', 404);
-  }
-
-  res.status(204).json({
-    status: 'success'
-  });
-};
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.getTourStats = async (req, res) => {
   const stats = await Tour.aggregate([

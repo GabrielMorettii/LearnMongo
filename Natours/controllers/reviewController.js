@@ -13,7 +13,7 @@ exports.getAllReviews = async (req, res) => {
 };
 
 exports.createReview = async (req, res) => {
-  const review = await Review.create(req.body);
+  const review = await Review.create({ ...req.body, user: req.user._id });
 
   return res.status(201).json({
     status: 'success',

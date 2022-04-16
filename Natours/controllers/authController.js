@@ -187,10 +187,6 @@ exports.resetPassword = async (req, res) => {
 exports.updatePassword = async (req, res) => {
   const user = await User.findById(req.user._id).select('+password');
 
-  if (!user) {
-    throw new AppError('The user was not found!', 404);
-  }
-
   const correct = await user.correctPassword(
     req.body.currentPassword,
     user.password

@@ -23,7 +23,7 @@ exports.getOne = (Model, popOptions) => async (req, res) => {
     throw new AppError('No document found with that ID', 404);
   }
 
-  res.json({
+  return res.json({
     status: 'success',
     data: {
       data: doc
@@ -44,7 +44,7 @@ exports.getAll = Model => async (req, res) => {
 
   const doc = await features.query;
 
-  res.status(200).json({
+  return res.status(200).json({
     status: 'success',
     results: doc.length,
     data: {
